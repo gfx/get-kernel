@@ -20,6 +20,8 @@ $ uname --kernel-release
 ## Supported Distributions
 
 * Ubuntu
+    * https://kernel.ubuntu.com/~kernel-ppa/mainline/
+
 
 ## Copyright
 
