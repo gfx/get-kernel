@@ -1,0 +1,62 @@
+#!/usr/bin/env perl
+use strict;
+use warnings FATAL => "all";
+use feature 'say';
+
+die "usage: $0 kernel-version\n" unless @ARGV;
+
+my $kernel_version = shift(@ARGV);
+
+my $base_url = "https://kernel.ubuntu.com/~kernel-ppa/mainline/";
+
+
+# e.g.
+# "4.19.100" => "4.19.100-0419100"
+# "4.9-rc1" => "4.9.0-040900rc1"
+sub make_version_id {
+        my($v) = @_;
+
+        my @extra;
+        if ($v =~ s/-([\w-]+)\z//xms) {
+                push @extra, $1;
+        }
+
+        my(@parts) = split /\./, $v;
+        if (@parts == 2) {
+                push @parts, "0";
+        }
+
+        return join(".", @parts) . "-" . join("", map { sprintf "%02s", $_ } @parts, @extra)
+}
+
+sub uniqstr {
+        my %seen;
+        return grep { !$seen{$_}++ } @_;
+}
+
+chomp(my $arch = `dpkg --print-architecture 2>/dev/null` || "amd64");
+
+my $detail = `curl --fail -sL $base_url/v$kernel_version/`;
+if(not defined $detail or $? != 0) {
+        die "Invalid kernel version '$kernel_version'. Find a correct one in $base_url\n";
+}
+
+my $version_id = make_version_id($kernel_version);
+
+my(@paths) = uniqstr(($detail =~ m{
+        <a\s+href="(
+                        linux-[\w-]+ # package name
+                        -(?:\Q$version_id\E)
+                        (?:-generic)? # build variant (none and "generic")
+                        _(?:\Q$version_id\E)
+                        \.\d+ # timestamp
+                        _(?:all|$arch)
+                        \.deb
+        )"}xmsg));
+
+foreach my $path(@paths) {
+        say "Downloading $path";
+        system "curl", "-LO", "$base_url/v$kernel_version/$path";
+}
+
+say "Done. Try `sudo dpkg -i *.deb && sudo update-grub && sudo reboot`";
