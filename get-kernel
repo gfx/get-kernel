@@ -45,6 +45,7 @@ my $version_id = make_version_id($kernel_version);
 
 my(@paths) = uniqstr(($detail =~ m{
         <a\s+href="(
+                        (?:$arch/|)
                         linux-[\w-]+ # package name
                         -(?:\Q$version_id\E)
                         (?:-generic)? # build variant (none and "generic")
@@ -60,3 +61,4 @@ foreach my $path(@paths) {
 }
 
 say "Done. Try `sudo dpkg -i *.deb && sudo update-grub && sudo reboot`";
+
