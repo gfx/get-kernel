@@ -45,7 +45,7 @@ my $version_id = make_version_id($kernel_version);
 
 my(@paths) = uniqstr(($detail =~ m{
         <a\s+href="(
-                        (?:$arch/|)
+                        (?:$arch/)?
                         linux-[\w-]+ # package name
                         -(?:\Q$version_id\E)
                         (?:-generic)? # build variant (none and "generic")
