@@ -1,3 +1,7 @@
+This repository is no longer maintained. See https://github.com/wt-l00/getkernel for the same purpose. 
+
+---
+
 # get-kernel
 
 A utility command to download Linux kernel packages.
